@@ -39,8 +39,16 @@ class Dosing:
         fig = go.Figure(go.Pie(
             name="",
             labels = filtered_graph_data.VISCODE,
-            hovertemplate = "Viscode: <b>%{label}</b><br>Count: <b>%{value} (%{percent})</b>",
+            hovertemplate = "Viscode: <b>%{label}</b><br>Count: <b>%{value} (%{percent})</b>"
         ))
+
+        fig.update_layout(
+            title="<b>Viscodes from Registry</b>",
+            font=dict(
+                size=18
+            )   
+        )
+
         plot(fig)
 
     def write_report(self, output_file_dir, viscode, svdose, ecsdstxt):
@@ -78,7 +86,6 @@ def main(argv):
    dos = Dosing("t2_ec 20190619.csv", "t2_registry 20190619.csv", "results.csv")
    dos.write_report(output_file_dir, viscode, svdose, ecsdstxt)
    dos.draw_graph('Y', 'bl')
-
 
 if __name__ == "__main__":
    main(sys.argv[1:])
