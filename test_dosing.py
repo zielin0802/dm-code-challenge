@@ -29,7 +29,7 @@ def test_merge_filtered(dosing, viscode, svdose, ecsdstxt,
 
     #test merged & filtered
     #row count
-    merge_filtered_data = dosing.filter(merged_data, viscode, svdose, ecsdstxt)
+    merge_filtered_data = dosing.report_filter(merged_data, viscode, svdose, ecsdstxt)
     actual_merged_filtered_row_count = merge_filtered_data.shape[0]
     assert actual_merged_filtered_row_count == expected_merged_filtered_row_count, "merged & filtered dataframe contains {0} rows, expecting {1}".format(merged_filtered_actual_row_count, expected_merged_filtered_row_count)
     #col count
