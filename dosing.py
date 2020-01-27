@@ -1,5 +1,6 @@
 import os, sys, getopt, pandas
 from plotly.offline import plot
+import plotly.graph_objs as go
 
 class Dosing:
     def __init__(self, ec_input_file_name, registry_input_file_name, output_file_name):
@@ -32,6 +33,15 @@ class Dosing:
             print("Could not create directory " + output_file_dir)
             sys.exit(2)
         data.to_csv(output_file_dir + "/" + self.output_file_name, index = None, header = True)
+
+    def draw_graph(self, svperf, viscode):
+        filtered_graph_data = self.graph_filter(svperf, viscode)
+        fig = go.Figure(go.Pie(
+            name="",
+            labels = filtered_graph_data.VISCODE,
+            hovertemplate = "Viscode: <b>%{label}</b><br>Count: <b>%{value} (%{percent})</b>",
+        ))
+        plot(fig)
 
 def main(argv):
    usage = 'usase: dosing.py -v <viscode> -s <svdose> -e <ecsdstxt> -o <output directory>'
@@ -66,15 +76,7 @@ def main(argv):
    dos.to_csv(filter_result_data, output_file_dir)
 
    #create graph
-   filtered_graph_data = dos.graph_filter('Y', 'bl')
-   fig = {
-    'data': [{'labels': filtered_graph_data.VISCODE, 'type': 'pie'}],
-    'layout': {'title': 'Viscodes from Registry'}
-    
-     }
-   #print('rendering graph...')
-   plot(fig)
-
+   dos.draw_graph('Y', 'bl')
 
 if __name__ == "__main__":
    main(sys.argv[1:])
