@@ -11,21 +11,21 @@ class Dosing:
     def __load_input_file(self, input_file_name):
         return pandas.read_csv(input_file_name)
 
-    def merge(self):
+    def __merge(self):
         return pandas.merge(self.data_registry[['ID', 'RID', 'USERID', 'VISCODE', 'SVDOSE']], 
                             self.data_ec[['ECSDSTXT', 'RID', 'VISCODE']], 
                             on=['RID', 'VISCODE'], 
                             how='left')
 
-    def report_filter(self, data, viscode, svdose, ecsdstxt):
+    def __report_filter(self, data, viscode, svdose, ecsdstxt):
         return data[(data.VISCODE == viscode) 
                      & (data.SVDOSE == svdose) 
                      & (data.ECSDSTXT != ecsdstxt)]
 
-    def graph_filter(self, svperf, viscode):
+    def __graph_filter(self, svperf, viscode):
         return self.data_registry[(self.data_registry.SVPERF == svperf) & (self.data_registry.VISCODE != viscode)]
 
-    def to_csv(self, data, output_file_dir):
+    def __to_csv(self, data, output_file_dir):
         try:
             if (not os.path.isdir(output_file_dir)):
                 os.mkdir(output_file_dir)
@@ -35,13 +35,18 @@ class Dosing:
         data.to_csv(output_file_dir + "/" + self.output_file_name, index = None, header = True)
 
     def draw_graph(self, svperf, viscode):
-        filtered_graph_data = self.graph_filter(svperf, viscode)
+        filtered_graph_data = self.__graph_filter(svperf, viscode)
         fig = go.Figure(go.Pie(
             name="",
             labels = filtered_graph_data.VISCODE,
             hovertemplate = "Viscode: <b>%{label}</b><br>Count: <b>%{value} (%{percent})</b>",
         ))
         plot(fig)
+
+    def write_report(self, output_file_dir, viscode, svdose, ecsdstxt):
+        merge_result_data = self.__merge()
+        filter_result_data = self.__report_filter(merge_result_data, viscode, svdose, ecsdstxt)
+        self.__to_csv(filter_result_data, output_file_dir)
 
 def main(argv):
    usage = 'usase: dosing.py -v <viscode> -s <svdose> -e <ecsdstxt> -o <output directory>'
@@ -69,14 +74,11 @@ def main(argv):
       elif opt in ("-o", "--odir"):
         output_file_dir = arg
 
-   #generate report
+   #generate report and graph
    dos = Dosing("t2_ec 20190619.csv", "t2_registry 20190619.csv", "results.csv")
-   merge_result_data = dos.merge()
-   filter_result_data = dos.report_filter(merge_result_data, viscode, svdose, ecsdstxt)
-   dos.to_csv(filter_result_data, output_file_dir)
-
-   #create graph
+   dos.write_report(output_file_dir, viscode, svdose, ecsdstxt)
    dos.draw_graph('Y', 'bl')
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
