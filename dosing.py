@@ -4,10 +4,10 @@ from plotly.offline import plot
 class Dosing:
     def __init__(self, ec_input_file_name, registry_input_file_name, output_file_name):
         self.output_file_name = output_file_name
-        self.data_ec = self.load_input_file(ec_input_file_name)
-        self.data_registry = self.load_input_file(registry_input_file_name)
+        self.data_ec = self.__load_input_file(ec_input_file_name)
+        self.data_registry = self.__load_input_file(registry_input_file_name)
 
-    def load_input_file(self, input_file_name):
+    def __load_input_file(self, input_file_name):
         return pandas.read_csv(input_file_name)
 
     def merge(self):
