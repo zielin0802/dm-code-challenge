@@ -15,10 +15,11 @@ def test_merge_filtered(dosing, viscode, svdose, ecsdstxt,
                         expected_ec_row_count, expected_registry_row_count, expected_merged_row_count, expected_merged_filtered_row_count,
                         expected_result_col_count, expected_ids, expected_rids, expected_userids, expected_ecsdstxts):
     #test init
-    ec_actual_row_count = dosing.data_ec.shape[0]
+
+    ec_actual_row_count = dosing.ec_df.shape[0]
     assert ec_actual_row_count == expected_ec_row_count, "ec dataframe contains {0} rows, expecting {1}".format(ec_actual_row_count, expected_ec_row_count)
 
-    registry_actual_row_count = dosing.data_registry.shape[0]
+    registry_actual_row_count = dosing.registry_df.shape[0]
     assert registry_actual_row_count == expected_registry_row_count, "registry dataframe contains {0} rows, expecting {1}".format(registry_actual_row_count, expected_registry_row_count)
 
     #test merge

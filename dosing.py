@@ -3,17 +3,21 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 
 class Dosing:
+    output_file_name = ""
+    ec_df = None
+    registry_df = None
+
     def __init__(self, ec_input_file_name, registry_input_file_name, output_file_name):
         self.output_file_name = output_file_name
-        self.data_ec = self.__load_input_file(ec_input_file_name)
-        self.data_registry = self.__load_input_file(registry_input_file_name)
+        self.ec_df = self.__load_input_file(ec_input_file_name)
+        self.registry_df = self.__load_input_file(registry_input_file_name)
 
     def __load_input_file(self, input_file_name):
         return pandas.read_csv(input_file_name)
 
     def __merge(self):
-        return pandas.merge(self.data_registry[['ID', 'RID', 'USERID', 'VISCODE', 'SVDOSE']], 
-                            self.data_ec[['ECSDSTXT', 'RID', 'VISCODE']], 
+        return pandas.merge(self.registry_df[['ID', 'RID', 'USERID', 'VISCODE', 'SVDOSE']], 
+                            self.ec_df[['ECSDSTXT', 'RID', 'VISCODE']], 
                             on=['RID', 'VISCODE'], 
                             how='left')
 
@@ -23,7 +27,7 @@ class Dosing:
                      & (data.ECSDSTXT != ecsdstxt)]
 
     def __graph_filter(self, svperf, viscode):
-        return self.data_registry[(self.data_registry.SVPERF == svperf) & (self.data_registry.VISCODE != viscode)]
+        return self.registry_df[(self.registry_df.SVPERF == svperf) & (self.registry_df.VISCODE != viscode)]
 
     def __to_csv(self, data, output_file_dir):
         try:
@@ -32,7 +36,8 @@ class Dosing:
         except:
             print("Could not create directory " + output_file_dir)
             sys.exit(2)
-        data.to_csv(output_file_dir + "/" + self.output_file_name, index = None, header = True)
+        
+        data.to_csv(os.path.join(output_file_dir, self.output_file_name), index = None, header = True)
 
     def draw_graph(self, svperf, viscode):
         filtered_graph_data = self.__graph_filter(svperf, viscode)
